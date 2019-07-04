@@ -52,13 +52,18 @@ cor(log(dados$qtd_doadores), log(dados$votos))
 
 
 ```{r}
-mod = lm(votos ~ total_despesa, data = dados)
-
-
+modelo <- lm(log10(votos) ~ log10(total_despesa) + log10(qtd_doadores) + log10(qtd_fornecedores) +ds_genero, data = dados)
 
 tidy(mod, conf.level = .95, conf.int = TRUE)
 glance(mod)
 
+```
+```{r}
+dados %>%  
+  add_predictions(model = mod) %>% # add o que o modelo estima p cada hs_grad
+  ggplot(mapping = aes(x = votos, y = total_despesa)) + 
+  geom_point(alpha = 0.4, size = .1) + 
+  geom_line(aes(y = pred), colour = "red") 
 
 ```
 
@@ -67,7 +72,6 @@ glance(mod)
 dados %>% 
     ggplot(aes(x = total_despesa, y = votos)) + 
     geom_point(size = .5, color = "#404E4D", alpha = .4) +
-    
 
     scale_x_log10(breaks = c(1e3, 1e5, 5e6), 
                   labels = c("1k", "100k", "5M"), 
@@ -85,9 +89,9 @@ dados %>%
 ```{r}
 
 dados %>% 
+    filter(ds_genero== "FEMININO") %>% 
     ggplot(aes(x = total_despesa, y = votos)) + 
-    geom_point(size = .5, color = "#404E4D", alpha = .4) +
-    
+    geom_point(size = 1, color = "#404E4D", alpha = .4) +
 
     scale_x_log10(breaks = c(1e3, 1e5, 5e6), 
                   labels = c("1k", "100k", "5M"), 
