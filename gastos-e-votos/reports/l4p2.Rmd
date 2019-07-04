@@ -45,11 +45,7 @@ cor(log(dados$qtd_doadores), log(dados$votos))
 
 ```
 
-
-
-
 #Modelo 
-
 
 ```{r}
 mod <- lm(log10(votos) ~ log10(total_despesa) + log10(qtd_doadores) + log10(qtd_fornecedores) +ds_genero, data = dados)
@@ -58,15 +54,8 @@ tidy(mod, conf.level = .95, conf.int = TRUE)
 glance(mod)
 
 ```
-```{r}
-dados %>%  
-  add_predictions(model = mod) %>% # add o que o modelo estima p cada hs_grad
-  ggplot(mapping = aes(x = votos, y = total_despesa)) + 
-  geom_point(alpha = 0.4, size = .1) + 
-  geom_line(aes(y = pred), colour = "red") 
 
-```
-
+#por estado 
 
 ```{r}
 dados %>% 
@@ -81,8 +70,17 @@ dados %>%
                   minor_breaks = NULL) +
     geom_smooth(method = "lm", 
                 se = F,
-                size = 1.2, 
-                color = "lightBlue") 
+                size = .5, 
+                color = "purple") +
+    facet_wrap(~reorder(sigla_uf, -log10(total_despesa))) +
+    labs(
+        x = "Total de despesas da campanha (escala log)", 
+        y = "Votos (escala de log)", 
+        title = "Gasto na campanha e votos", 
+        subtitle = "UFs onde $ tem maior impacto primeiro"
+    )
+
+ggsave("relacao-ufs.png", width = 8, height = 6)
 
 ```
 
