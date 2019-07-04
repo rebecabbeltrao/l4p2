@@ -52,7 +52,7 @@ cor(log(dados$qtd_doadores), log(dados$votos))
 
 
 ```{r}
-modelo <- lm(log10(votos) ~ log10(total_despesa) + log10(qtd_doadores) + log10(qtd_fornecedores) +ds_genero, data = dados)
+mod <- lm(log10(votos) ~ log10(total_despesa) + log10(qtd_doadores) + log10(qtd_fornecedores) +ds_genero, data = dados)
 
 tidy(mod, conf.level = .95, conf.int = TRUE)
 glance(mod)
