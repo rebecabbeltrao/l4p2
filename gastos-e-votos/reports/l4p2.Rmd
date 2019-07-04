@@ -28,12 +28,6 @@ dados = read.csv(here::here("data/eleicoes_2018.csv"))
 
 #Modelo 
 
-```{r}
-modelos = dados %>% 
-    group_by(sigla_uf) %>% 
-    do(tidy(lm(log10(votos) ~ log10(total_despesa), 
-               data = .)))
-```
 
 ```{r}
 mod = lm(votos ~ total_despesa, data = dados)
@@ -42,12 +36,10 @@ mod = lm(votos ~ total_despesa, data = dados)
 tidy(mod, conf.level = .95, conf.int = TRUE)
 glance(mod)
 
-dados %>% 
-    add_predictions(model = mod) %>% 
-    ggplot(aes(x = total_despesa, y = votos)) +
-    geom_point(size = .5)+
-    geom_line(aes(y = pred), colour = "orange", size = 1.5) 
+
 ```
+
+
 ```{r}
 dados %>% 
     ggplot(aes(x = total_despesa, y = votos)) + 
