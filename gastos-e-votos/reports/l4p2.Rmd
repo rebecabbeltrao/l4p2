@@ -20,13 +20,15 @@ knitr::opts_chunk$set(tidy = FALSE,
 
 ```
 
-```{r}
+Estamos usando os dados das eleições 2018. Vamos filtrar as colunas NA e os valores maiores que 0.
 
+```{r}
 dados = read.csv(here::here("data/eleicoes_2018.csv"))
 dados <-  na.omit(dados)
-dados <- dados %>%  filter(votos > 0,qtd_doacoes > 0, qtd_doadores > 0)
-
+dados <- dados %>%  filter(votos != 0, qtd_doacoes != 0, qtd_doadores != 0)
 ```
+
+#Estudando as variáveis
 
 ```{r}
 dados %>% 
@@ -84,22 +86,3 @@ ggsave("relacao-ufs.png", width = 8, height = 6)
 
 ```
 
-```{r}
-
-dados %>% 
-    filter(ds_genero== "FEMININO") %>% 
-    ggplot(aes(x = total_despesa, y = votos)) + 
-    geom_point(size = 1, color = "#404E4D", alpha = .4) +
-
-    scale_x_log10(breaks = c(1e3, 1e5, 5e6), 
-                  labels = c("1k", "100k", "5M"), 
-                  minor_breaks = NULL) +
-    scale_y_log10(breaks = c(100, 1e3, 1e4, 1e5), 
-                  labels = c("100", "1k", "10k", "100k"), 
-                  minor_breaks = NULL) +
-    geom_smooth(method = "lm", 
-                se = F,
-                size = 1.2, 
-                color = "orange") 
-
-```
