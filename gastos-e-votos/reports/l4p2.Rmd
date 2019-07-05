@@ -8,9 +8,16 @@ output: html_document
 library(tidyverse)
 library(here)
 library(viridis)
-
+library(ggplot2)
 library(broom)
 library(modelr)
+library(corrplot)
+library(modelr)
+library(broom)
+library(GGally)
+library(dplyr)
+
+theme_set(theme_bw())
 
 
 knitr::opts_chunk$set(tidy = FALSE,
@@ -20,44 +27,74 @@ knitr::opts_chunk$set(tidy = FALSE,
 
 ```
 
-Estamos usando os dados das eleições 2018. Vamos filtrar as colunas NA e os valores maiores que 0.
+Estamos usando os dados das eleições 2018. Vamos filtrar as colunas NA e os valores diferentes de 0.
 
 ```{r}
+
 dados = read.csv(here::here("data/eleicoes_2018.csv"))
 dados <-  na.omit(dados)
 dados <- dados %>%  filter(votos != 0, qtd_doacoes != 0, qtd_doadores != 0)
+
 ```
 
 #Estudando as variáveis
+
+calculando correlações entre algumas variáveis e a quantidade de votos. Sendo elas: Quantidade de doações, quantidade de doadores, Recursos próprios, de pessoas físicas e de outros candidatos.   
+
+```{r}
+
+cor(log(dados$qtd_doacoes), log(dados$votos))
+cor(log(dados$qtd_doadores), log(dados$votos))
+cor(log(dados$recursos.prÃ³prios), log(dados$votos))
+cor(log(dados$recursos.de.pessoas.fÃ.sicas), log(dados$votos))
+cor(log(dados$recursos.de.outros.candidatos), log(dados$votos))
+
+```
+Como podemos observar, os valores das correlações foram significantes, sendo a maior dela 0.63 referente aos recursos de outros candidatos. Esses resultados indicam que essas variáveis possuem uma influencia na quantidade de votos de cada candidato. 
+Vamos visualizar os gráficos de dispersão entre algumas correlações mais significantes. 
 
 ```{r}
 dados %>% 
     na.omit(.) %>% 
     ggplot(aes(x = log10(votos), y = log10(qtd_doacoes))) + 
-    geom_point()
+    geom_point(alpha = .6 ,color = "brown1")+
+    labs(x = "Votos (na escala log)", y = "Quantidade de doacoes(na escala log)")
 
 dados %>% 
     na.omit(.) %>% 
     ggplot(aes(x = log10(votos), y = log10(qtd_doadores))) + 
-    geom_point()
-    
+    geom_point(alpha = .6, color = "brown2")+
+    labs(x = "Votos (na escala log)", y = "Quantidade de doadores(na escala log)")
 
-cor(log(dados$qtd_doacoes), log(dados$votos))
-cor(log(dados$qtd_doadores), log(dados$votos))
+dados %>% 
+    na.omit(.) %>% 
+    ggplot(aes(x = log10(votos), y = log10(recursos.prÃ³prios))) + 
+    geom_point(alpha = .6, color = "brown3")+
+    labs(x = "Votos (na escala log)", y = "Recursos Proprios(na escala log)")
+
+dados %>% 
+    na.omit(.) %>% 
+    ggplot(aes(x = log10(votos), y = log10(recursos.de.pessoas.fÃ.sicas))) + 
+    geom_point(alpha = .6, color = "brown4")+
+    labs(x = "Votos (na escala log)", y = "Recursos de Pessoas Fisicas(na escala log)")
 
 ```
+Agora, vamos criar um modelo de regressão multipla para observar o efeito das variáveis na quantidade de votos. 
 
 #Modelo 
 
 ```{r}
-mod <- lm(log10(votos) ~ log10(total_despesa) + log10(qtd_doadores) + log10(qtd_fornecedores) +ds_genero, data = dados)
+mod <- lm(log10(votos) ~ log10(total_despesa) + log10(qtd_doadores) + log10(qtd_fornecedores) + ds_genero, data = dados)
 
 tidy(mod, conf.level = .95, conf.int = TRUE)
 glance(mod)
 
 ```
 
-#por estado 
+
+
+
+#Por estado 
 
 ```{r}
 dados %>% 
@@ -73,7 +110,7 @@ dados %>%
     geom_smooth(method = "lm", 
                 se = F,
                 size = .5, 
-                color = "purple") +
+                color = "orangered") +
     facet_wrap(~reorder(sigla_uf, -log10(total_despesa))) +
     labs(
         x = "Total de despesas da campanha (escala log)", 
