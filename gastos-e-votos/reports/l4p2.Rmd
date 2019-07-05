@@ -45,12 +45,12 @@ calculando correlações entre algumas variáveis e a quantidade de votos. Sendo
 
 cor(log(dados$qtd_doacoes), log(dados$votos))
 cor(log(dados$qtd_doadores), log(dados$votos))
-cor(log(dados$recursos.prÃ³prios), log(dados$votos))
-cor(log(dados$recursos.de.pessoas.fÃ.sicas), log(dados$votos))
+cor(log(dados$recursos.próprios), log(dados$votos))
+cor(log(dados$recursos.de.pessoas.físicas), log(dados$votos))
 cor(log(dados$recursos.de.outros.candidatos), log(dados$votos))
 
 ```
-Como podemos observar, os valores das correlações foram significantes, sendo a maior dela 0.63 referente aos recursos de outros candidatos. Esses resultados indicam que essas variáveis possuem uma influencia na quantidade de votos de cada candidato. 
+Como podemos observar, os valores das correlações foram significantes, sendo a maior dela 0.63 referente aos recursos de outros candidatos. Esses resultados indicam que essas variáveis possuem uma influência na quantidade de votos de cada candidato. 
 Vamos visualizar os gráficos de dispersão entre algumas correlações mais significantes. 
 
 ```{r}
@@ -68,17 +68,19 @@ dados %>%
 
 dados %>% 
     na.omit(.) %>% 
-    ggplot(aes(x = log10(votos), y = log10(recursos.prÃ³prios))) + 
+    ggplot(aes(x = log10(votos), y = log10(recursos.próprios))) + 
     geom_point(alpha = .6, color = "brown3")+
     labs(x = "Votos (na escala log)", y = "Recursos Proprios(na escala log)")
 
 dados %>% 
     na.omit(.) %>% 
-    ggplot(aes(x = log10(votos), y = log10(recursos.de.pessoas.fÃ.sicas))) + 
+    ggplot(aes(x = log10(votos), y = log10(recursos.de.pessoas.físicas))) + 
     geom_point(alpha = .6, color = "brown4")+
     labs(x = "Votos (na escala log)", y = "Recursos de Pessoas Fisicas(na escala log)")
 
 ```
+Na maioria dos gráficos acima os dados aparentam ter uma relação linear crescente.
+
 Agora, vamos criar um modelo de regressão multipla para observar o efeito das variáveis na quantidade de votos. 
 
 #Modelo 
@@ -90,9 +92,10 @@ tidy(mod, conf.level = .95, conf.int = TRUE)
 glance(mod)
 
 ```
-
-
-
+ 
+Atráves das informações do modelo acima podemos observar que a despesa total parace influênciar de forma positiva na quantidade de votos, assim como a quantidade de doadores. 
+Curiosamente a quantidade de fornecedores parece influênciar negativamente na quantidade de votos, ou seja, quanto mais fornecedores menos voto. Apesar da influência ser pequena, de cerca de -0,02, é curioso ser negativa.
+Quanto ao genêro, única variável categorica do modelo, segundo o modelo ser do genêro masculino tem influência positiva na quantidade de votos que o politico recebe.
 
 #Por estado 
 
@@ -123,3 +126,11 @@ ggsave("relacao-ufs.png", width = 8, height = 6)
 
 ```
 
+No plot acima podemos ver como em quase todos os estado a quanto maior a desesa com a campanha maior a quantidade de votos. Com exceção do Amapá. Apesar qua nesse estado temos uma quantidade pequena de dados.
+
+```{r}
+dados %>% ggplot(aes(x =  ds_genero, y = log(votos))) + 
+  ggbeeswarm::geom_quasirandom()
+```
+
+No plot acima além de observamos a diferença gritante entre a quantidade de cadidatos de cada genero. Podemos também perceber que a média de votos de candidatos do sexo masculino é bem maior que a do feminino.  
